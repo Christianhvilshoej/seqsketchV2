@@ -1,0 +1,55 @@
+#DATA module
+project_name: "seqsketch"
+model_name: "baseline"
+version_name: "v0"
+
+
+test: false
+
+logger:
+  offline: false
+
+data:
+  module: QuickDrawDataModule
+  params:
+    data_dir: "data/quickdraw/processed"
+    category: "cat"
+    batch_size: 2
+    val_size: 0.2
+    data_size: [64, 64]
+
+model:
+  module: SeqStrokeDiffusionModule
+  params:
+    denoising_network: 
+      module: UNet
+      params:
+        input_channels: 1
+        image_resolution: 64 #should be the same as data_size
+        ch: 128
+        ch_mult: [1, 2, 2, 2]
+        attn: [1]
+        num_res_blocks: 4
+        dropout: 0.1
+        cfg_dropout: 0.1
+    scheduler:
+      module: myDDIMScheduler
+      params:
+        num_train_timesteps: 1000
+        beta_start: 1.0e-4
+        beta_end: 0.02
+        beta_schedule: "squaredcos_cap_v2"
+    num_inference_timesteps: 1000
+    lr: 1.0e-4
+    lr_schedule: "exponential_decay_0.01"
+    conditioning: ["current_strokes"]
+
+trainer:
+  max_epochs: 1000
+  precision: 32
+  devices: -1
+  accelerator: "gpu"
+  accumulate_grad_batches: 8
+  callbacks: ["ModelCheckpoint"]
+
+

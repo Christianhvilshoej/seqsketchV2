@@ -1,0 +1,62 @@
+#DATA module
+project_name: "seqsketch"
+model_name: "eps_rnn"
+version_name: "v0"
+
+
+test: true
+
+logger:
+  offline: false
+
+data:
+  module: QuickDrawDataModule2
+  params:
+    data_dir: "data/quickdraw/processed"
+    category: "cat"
+    batch_size: 16
+    val_size: 0.2
+    max_samples: null
+    num_workers: 23
+    max_seq_length: &max_seq_length 32
+    max_strokes: &max_strokes 24
+
+model:
+  module: SeqStrokeDiffusionModule2
+  params:
+    denoising_network: 
+      module: StrokeDenoiser
+      params:
+        d_model: 128
+        single: False
+        mode: "tf" 
+        nhead: 4
+        num_encoder_layers: 3
+        num_decoder_layers: 3
+        max_seq_length: *max_seq_length
+        max_strokes: *max_strokes
+        #dim_feedforward: 512
+        #max_len: 500
+    scheduler:
+      module: myDDIMScheduler
+      params:
+        num_train_timesteps: 1000
+        beta_start: 1.0e-4
+        beta_end: 0.02
+        beta_schedule: "squaredcos_cap_v2"
+        clip_sample: False
+        prediction_type: "epsilon"
+    num_inference_timesteps: 50
+    lr: 1.0e-4
+    lr_schedule: "exponential_decay_0.01"
+    conditioning: ["current_strokes"]
+
+trainer:
+  max_epochs: 50
+  precision: 32
+  devices: -1
+  accelerator: "gpu"
+  accumulate_grad_batches: 2
+  callbacks: ["ModelCheckpoint", "ImageLogger2"]
+
+

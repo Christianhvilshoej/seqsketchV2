@@ -1,0 +1,6 @@
+inference:
+  device: "cuda"
+  num_iterations: 10
+  num_samples: 5
+  tag: "results"
+  checkpoint: "last.ckpt"

@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "seqsketch"
+version = "0.0.1"
+description = "Course project for CS492(D): Diffusion Models and Their Applications"
+authors = [
+  { name = "Kasper Joergensen", email = "kasperjoergensen3@email.com" },
+]
+license = { file = "LICENSE" }
+readme = "README.md"
+requires-python = ">=3.9"
+dynamic = ["dependencies"]
+
+[tool.setuptools]
+packages = ["seqsketch"]
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
+
+[project.scripts]
+train = "seqsketch.train:entrypoint"
+inference = "seqsketch.inference:entrypoint"
